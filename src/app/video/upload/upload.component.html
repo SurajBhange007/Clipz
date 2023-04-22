@@ -5,51 +5,59 @@
 
     <!-- Upload Dropbox -->
     <ng-container *ngIf="!nextStep; else uploadFormCtr">
-      <div app-event-blocker (dragend)="isDragOver = false" (dragover)=" isDragOver = true"
-        (dragenter)=" isDragOver = true" (dragleave)="isDragOver = false" (mouseleave)="isDragOver = false"
+      <div app-event-blocker (dragend)="isDragover = false" (dragover)="isDragover = true"
+        (dragenter)="isDragover = true" (dragleave)="isDragover = false" (mouseleave)="isDragover = false"
         (drop)="storeFile($event)" [ngClass]="{
-          'bg-indigo-400 border-indigo-400 border-solid' : isDragOver
+            'bg-indigo-400 border-indigo-400 border-solid ': isDragover
         }" class="w-full px-10 py-40 rounded text-center cursor-pointer border border-dashed
           border-gray-400 transition duration-500 hover:text-white
           hover:bg-indigo-400 hover:border-indigo-400 hover:border-solid text-xl">
         <h5>Drop your file here (mp4 only!)</h5>
       </div>
-      <input type="file" class="mt-6 px-30" (change)="storeFile($event)">
+      <input type="file" class="mt-4" (change)="storeFile($event)">
     </ng-container>
     <!-- Video Editor -->
     <ng-template #uploadFormCtr>
       <app-alert *ngIf="showAlert" [color]="alertColor">
-        <p>{{ alertMsg }}</p>
+        <p>{{ alertMsg}}</p>
         <p *ngIf="showPercentage">{{ percentage | percent }}</p>
       </app-alert>
-      <!-- Form -->
-      <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
-        <!-- Screenshots -->
+
+      <!-- Screenshots -->
+      <ng-container *ngIf="!thumbnail; else showthumbnail">
         <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div class="border-8 cursor-pointer border-green-400">
-            <img src="assets/img/1.jpg">
-          </div>
-          <div class="border-8 cursor-pointer border-transparent">
-            <img src="assets/img/2.jpg">
-          </div>
-          <div class="border-8 cursor-pointer border-transparent">
-            <img src="assets/img/3.jpg">
-          </div>
+        <div app-event-blocker (dragend)="isDragover = false" (dragover)="isDragover = true"
+          (dragenter)="isDragover = true" (dragleave)="isDragover = false" (mouseleave)="isDragover = false"
+          (drop)="storeScreenShot($event)" [ngClass]="{
+              'bg-indigo-400 border-indigo-400 border-solid ': isDragover
+          }" class="w-full px-10 py-40 rounded text-center cursor-pointer border border-dashed
+            border-gray-400 transition duration-500 hover:text-white
+            hover:bg-indigo-400 hover:border-indigo-400 hover:border-solid text-xl">
+          <h5>Drop your Thumbnail here </h5>
         </div>
+        <input type="file" class="mt-4" (change)="storeScreenShot($event)">
+      </ng-container>
+      <ng-template #showthumbnail>
+        <img id = "thumbnailImg" [src]="imgSrc" alt="" height="300vh">
+      </ng-template>
+
+      <!-- Form -->
+      <form [formGroup]='uploadForm' (ngSubmit)="uploadFile()">
+
 
         <!-- Title -->
         <div class="mt-4">
           <label class="block text-xl mb-4">Title</label>
-          <app-input [control]="title" placeholder="Enter Title"></app-input>
+          <app-input [control]="title" placeholder="Enter your title"></app-input>
         </div>
 
         <div class="mt-4 text-right">
-          <button type="submit" [disabled]="inSubmission" [ngClass]="{
-              'opacity-50':inSubmission,
-              'hover:bg-indigo-700': !inSubmission
-            }"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm rounded-md text-white bg-indigo-600  focus:outline-none">
+          <button type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm rounded-md text-white bg-indigo-600 focus:outline-none"
+            [disabled]="inSubmission" [ngClass]="{
+                'opacity-50':inSubmission,
+                'hover:bg-indigo-700':!inSubmission
+            }">
             Publish
           </button>
         </div>

@@ -8,7 +8,6 @@ import { SharedModule } from '../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditComponent } from './edit/edit.component';
 
-
 @NgModule({
   declarations: [
     ManageComponent,

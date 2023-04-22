@@ -1,43 +1,44 @@
 import { Component } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth'
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-
+  constructor(private auth: AngularFireAuth) { }
   credentials = {
     email: '',
     password: ''
   }
-
+  inSubmission = false;
   showAlert = false
-  alertMsg = 'Please wait! We are logging you in.'
+  alertMsg = 'Please wait! Your account is being created.'
   alertColor = 'blue'
-  inSubmission = false
 
-  constructor(private auth: AngularFireAuth) { }
+
 
   async login() {
-    this.showAlert = true;
-    this.alertMsg = 'Please wait! We are logging you in.'
-    this.alertColor = 'blue'
     this.inSubmission = true
+    // console.log("registeration started")
+    this.showAlert = true
+    this.alertMsg = 'Logging you In.....'
+    this.alertColor = 'blue';
+    console.log(this.credentials)
     try {
       await this.auth.signInWithEmailAndPassword(
         this.credentials.email, this.credentials.password
       )
     } catch (e) {
-      this.inSubmission= false
-      this.alertMsg = "Unexpected error occured. Please try again"
+      console.log((e as Error).message);
+      this.alertMsg = (e as Error).message + 'An Unexpected error occured. Please try again later.'
       this.alertColor = 'red'
-
-      console.log(e);
+      this.inSubmission = false
       return
     }
-    this.alertMsg = 'Success! your are now logged in.'
-    this.alertColor = 'green'
-  }
 
+    this.alertMsg='Welcome Back!'
+    this.alertColor= 'green'
+  }
 }

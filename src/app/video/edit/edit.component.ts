@@ -1,95 +1,104 @@
-import { Component, OnInit, OnDestroy, Input , OnChanges, Output,
-EventEmitter} from '@angular/core';
+import { Component , OnInit, OnDestroy, Input, OnChanges, Output,EventEmitter} from '@angular/core';
 import IClip from 'src/app/models/clip.model';
 import { ModalService } from 'src/app/services/modal.service';
-import { FormGroup , FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup , Validators} from '@angular/forms';
 import { ClipService } from 'src/app/services/clip.service';
+
+
+
 
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.css']
 })
-export class EditComponent implements OnInit, OnDestroy, OnChanges{
-
-@Input() activeClip: IClip | null  = null
-
- 
-inSubmission = false
-showAlert = false
-alertColor = 'blue'
-alertMsg = 'Please wait!!! Updating the clip.'
-@Output() update = new EventEmitter()
+export class EditComponent implements OnInit , OnDestroy, OnChanges{
+  @Input()
+  activeClip : IClip | null = null
+  @Output()
+  update = new EventEmitter()
 
 
+  showAlert = false
+  alertMsg = 'Please wait! Your request is being updated.'
+  alertColor = 'blue'
+  inSubmission= false
 
 
-clipID = new FormControl('',{
-  nonNullable: true
-})
 
-title = new FormControl('',{
-  validators:[
-    Validators.required,
-    Validators.minLength(3)
-  ],
-  nonNullable: true
-})
+  clipID = new FormControl('',{
+    nonNullable:true
+  })
 
-editForm = new FormGroup({
-  title: this.title,
-  id: this.clipID
-})
+  title = new FormControl('',{
+    validators:[
+      Validators.required,
+      Validators.minLength(3)
+    ],
+    nonNullable:true
+  })
 
-constructor( private modal : ModalService,
-              private clipService: ClipService){}
+  editForm = new FormGroup({
+    title:this.title,
+    id: this.clipID
+  })
 
-ngOnInit(): void {
-    this.modal.register('editClip');
-}
 
-ngOnDestroy(): void {
-    this.modal.unregister('editClip');
-}
+  constructor(
+   private modalService: ModalService,
+   private clipService: ClipService
+  ){}
 
-ngOnChanges(): void {
+  async submit(){
     if(!this.activeClip){
       return
     }
-    if(this.activeClip.docID== undefined)return
+      this.showAlert = true
+      this.alertMsg = 'Please wait! Your video is being updated.'
+      this.alertColor = 'blue'
+      this.inSubmission= true
 
-    this.inSubmission = false
-    this.showAlert = false
-    this.clipID.setValue(this.activeClip.docID)
-    this.title.setValue(this.activeClip.title)
-}
+    try{
+      await this.clipService.updateClip(
+          this.clipID.value ,this.title.value
+        )
+     }catch(e){
+      this.inSubmission = false
+      this.alertColor= 'red'
+      this.alertMsg='Something went wront! Try again.'
+      return
+     }
 
-async submit(){
-  if(!this.activeClip){
-    return
+     this.activeClip.title =  this.title.value
+     this.update.emit(this.activeClip)
+
+     this.inSubmission= false
+     this.alertColor='green'
+     this.alertMsg='Success!'
+
+     setTimeout(() => {
+      this.modalService.toggleModal('editClip')
+     }, 3000);
+      
+    }
+
+
+  ngOnInit(): void {
+    console.log('inside onit edit')
+      this.modalService.register('editClip')
   }
-  this.inSubmission = true 
-  this.showAlert = true
-  this.alertColor ='blue'
-  this.alertMsg = 'Please Wait!! Updating the clip.'
-
-  try {
-    await this.clipService.updateClip(
-      this.clipID.value, this.title.value
-    )
-  } catch (e) {
-    this.inSubmission = false
-    this.alertColor ='red'
-    this.alertMsg = 'Something went wrong. Try again later'
-    return
+  ngOnDestroy(): void {
+      this.modalService.unregister('editClip')
   }
 
-  this.activeClip.title = this.title.value
-  this.update.emit(this.activeClip)
+  ngOnChanges(): void {
+      if(!this.activeClip){
+        return
+      }
+      this.inSubmission= false 
+      this.showAlert = false
+      this.clipID.setValue(this.activeClip.docID as string)
+      this.title.setValue(this.activeClip.title)
+  }
 
-  this.inSubmission = false
-  this.alertColor = 'green'
-  this.alertMsg = 'Clip has been updated.'
-
-}
 }
