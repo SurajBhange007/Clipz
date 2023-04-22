@@ -84,7 +84,7 @@ export class UploadComponent  implements OnDestroy{
     this.showPercentage = true
     console.log("File Uploaded!!!")
     const clipFileName = uuid()
-    const clipPath = `clip/${clipFileName}.mp4`
+    const clipPath = `clips/${clipFileName}.mp4`
 
     this.task = this.storage.upload(clipPath, this.file);
     const clipRef = this.storage.ref(clipPath);
